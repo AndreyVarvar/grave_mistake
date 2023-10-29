@@ -1,0 +1,11 @@
+idea:
+idea similar to subway surfers, but you occasionally stop to solve puzzles
+
+how the game progresses:
+the game starts with animation, of a programmer 'pip install pygame' instead of pygame-ce, then the snake starts chasing him
+the gameplay is infinite. You must avoid obstacles by pressing left/right. There will be different states:
+    - normal state: just run and avoid obstacles
+    - gun state: you have a gun, and whenever you see a wall, you must destroy it (there is no other option, or you die)
+    - night vision state: you can relax, the snake won't get you for a while. But you must be careful, as the path is full of traps
+    - puzzle state: you stumble upon a locked door, that needs to be unlocked by completing a puzzle. but you have limited time
+    - calm puzzle state: a harder puzzle, but you have unlimited time. Since you are locked in a room, but once solved, both you and the snake are released.
