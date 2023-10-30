@@ -1,8 +1,10 @@
 import settings as stt
 import pygame as pg
-from scenes import AnimationScene, NormalState
+from scenes import AnimationScene, SurvivalState
 from effect import BlinkingText
 from player import Player
+from snake import Snake
+from camera import Camera
 
 
 class Game:
@@ -15,17 +17,21 @@ class Game:
 
         self.running = True
 
-        # player
+        # entities
         self.player = Player()
+        self.snake = Snake(self.player.rect.center)
+
+        # camera
+        self.camera = Camera()
 
         # scenes
         self.animations = [AnimationScene("intro1", 4, "assets/animations/lol"),
                            AnimationScene("intro2", 2, "assets/animations/lol2")]
 
-        self.main_gameplay_state = NormalState()
+        self.main_gameplay_state = SurvivalState()
 
         # special effects
-        self.hint_1 = BlinkingText(pg.image.load("images/hint1.png"), 2, (600, 40), 3)
+        self.hint_1 = BlinkingText(pg.image.load("images/hint1.png"), 2, (40, 40), 5)
 
         # other stuff
         self.state = 0  # play first animation
@@ -57,12 +63,19 @@ class Game:
         self.player.handle_events(events, keys_pressed)
 
     def update(self, dt):
+        stt.sin_clock += 1  # whatever function use a sin clock can access this global variable, instead of each one having its own
+
         self.current_scene.update(dt)
-        self.player.update()
 
         if self.current_scene.type == "animation":
             if self.current_scene.over:
                 self.change_state = True
+
+        elif self.current_scene.type == "gameplay":
+            self.camera.follow(self.player.rect.center, {"x": (-1000, 10000), "y": (-10000, 10000)})
+
+            self.snake.update(dt)
+            self.player.update(dt)
 
 
         if self.change_state:
@@ -76,17 +89,26 @@ class Game:
                 self.state = 2
                 self.current_scene = self.main_gameplay_state
 
+        stt.debugger.update(self.player.rect.center, "player_pos")
+        stt.debugger.update(self.camera.rect.center, "camera_pos")
+
     def draw(self, dt):
         self.display.fill("black")
+        self.camera.clear()
 
-        self.current_scene.draw(self.display)
+        self.current_scene.draw(self.camera)
 
         if self.current_scene.name in ["intro1", "intro2"]:
             self.hint_1.update(dt)
-            self.hint_1.draw(self.display)
+            self.hint_1.draw(self.camera.frame)
 
         elif self.current_scene.name in ["normal"]:
-            self.player.draw(self.display)
+            self.player.draw(self.camera)
+            self.snake.draw(self.camera)
+
+        self.camera.draw(self.display)
+
+        stt.debugger.draw(self.display)
 
         pg.display.update()
 

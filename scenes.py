@@ -1,7 +1,7 @@
 import settings as stt
 import pygame as pg
 import os
-from obstacles import ObstacleList
+from obstacles import ObstacleList, possible_obstacles, ObstacleEntity, Obstacle
 
 
 class Scene:
@@ -40,12 +40,11 @@ class AnimationScene(Scene):
                 self.current_frame -= 1
 
     def draw(self, *args):
-        surf = args[0]
+        camera = args[0]
 
         frame = self.frames[self.current_frame]
         scaled_frame = pg.transform.scale_by(frame, stt.D_H/frame.get_height())
-        surf.blit(scaled_frame,
-                  ((stt.D_W-scaled_frame.get_width())//2, 0))
+        camera.frame.blit(scaled_frame, (0, 0))
 
     def get_frames(self, path):
         frames = [f for f in os.listdir(path)]
@@ -58,6 +57,7 @@ class AnimationScene(Scene):
 class GameplayState(Scene):
     def __init__(self, name):
         super().__init__(name, "gameplay")
+        self.obstacles = ObstacleList()
 
     def draw(self, *args):
         pass
@@ -69,33 +69,16 @@ class GameplayState(Scene):
         pass
 
 
-class NormalState(GameplayState):
+class SurvivalState(GameplayState):
     def __init__(self):
         super().__init__("normal")
 
         self.objects = ObstacleList()
 
     def draw(self, *args):
-        surf = args[0]
+        camera = args[0]
 
-        walls = [pg.Rect(0, 0, stt.D_H//4, stt.D_H),
-                 pg.Rect(3*stt.D_H//4, 0, stt.D_H//4, stt.D_H)]
-
-        track = pg.Rect((stt.D_H//4, 0, stt.D_H//2, stt.D_H))
-
-        frame = pg.Surface((stt.D_H, stt.D_H))
-
-
-        pg.draw.rect(frame, (120, 120, 120), track)
-
-        pg.draw.rect(frame, (170, 170, 170), walls[0])
-        pg.draw.rect(frame, (170, 170, 170), walls[1])
-
-        # draw row outlines on the track
-        for i in range(2):
-            pg.draw.rect(frame, (100, 100, 100), (track.x+track.width//3 * (i+1), 0, 4, stt.D_H))
-
-        surf.blit(frame, ((stt.D_W - stt.D_H)//2, 0))
+        camera.blit(frame, (0, 0))
 
     def update(self, *args):
         dt = args[0]
