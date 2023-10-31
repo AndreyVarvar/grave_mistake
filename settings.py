@@ -9,9 +9,11 @@ pg.display.set_caption("grave mistake...")
 
 FPS = 60
 
-cell_size = D_H//6
+cell_size = D_H//8
 wall_size = D_H//4
 
 sin_clock = 0
 
 debugger = Debugger()
+
+sfx_channel = pg.mixer.Channel(0)

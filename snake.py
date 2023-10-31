@@ -4,12 +4,13 @@ from math import sin
 
 
 class Snake:
-    def __init__(self, player_pos):
+    def __init__(self, room):
         self.image = pg.transform.scale_by(pg.image.load("images/snake.png").convert_alpha(), 6)
+        size = self.image.get_size()
 
-        self.pos = pg.Vector2((stt.D_H-self.image.get_width())//2, player_pos[1]+200)
+        self.pos = pg.Vector2(room.boundaries.centerx - size[0]//2, room.boundaries.bottom + 200)
 
-        self.speed = 30
+        self.speed = 60
 
     def update(self, dt):
         self.pos.y -= self.speed*dt

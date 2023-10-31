@@ -17,21 +17,24 @@ class Game:
 
         self.running = True
 
-        # entities
-        self.player = Player()
-        self.snake = Snake(self.player.rect.center)
-
         # camera
         self.camera = Camera()
+
+        # level.. uhh.. I FORGOT THE WORD AGAIN
+        self.current_level_n = 1
 
         # scenes
         self.animations = [AnimationScene("intro1", 4, "assets/animations/lol"),
                            AnimationScene("intro2", 2, "assets/animations/lol2")]
 
-        self.main_gameplay_state = SurvivalState()
+        self.main_gameplay_state = SurvivalState(self.current_level_n)
 
         # special effects
         self.hint_1 = BlinkingText(pg.image.load("images/hint1.png"), 2, (40, 40), 5)
+
+        # entities
+        self.player = Player(self.main_gameplay_state.room.player_spawn_pos)
+        self.snake = Snake(self.main_gameplay_state.room)
 
         # other stuff
         self.state = 0  # play first animation
@@ -72,10 +75,13 @@ class Game:
                 self.change_state = True
 
         elif self.current_scene.type == "gameplay":
-            self.camera.follow(self.player.rect.center, {"x": (-1000, 10000), "y": (-10000, 10000)})
+            self.camera.follow(self.player.rect.center, self.current_scene.room.boundaries)
 
             self.snake.update(dt)
-            self.player.update(dt)
+            self.player.update(dt, self.current_scene.room.hitboxes+self.current_scene.room.wall_rects)
+
+            if self.current_scene.name == "normal":
+                self.current_scene.sfx(self.snake, self.player)
 
 
         if self.change_state:
@@ -89,8 +95,12 @@ class Game:
                 self.state = 2
                 self.current_scene = self.main_gameplay_state
 
+            elif self.current_scene.name == "normal":
+                stt.debugger.update(self.current_scene.room.boundaries, "bounds")
+
         stt.debugger.update(self.player.rect.center, "player_pos")
         stt.debugger.update(self.camera.rect.center, "camera_pos")
+        stt.debugger.update(self.current_scene.name, "scene name")
 
     def draw(self, dt):
         self.display.fill("black")
@@ -102,13 +112,14 @@ class Game:
             self.hint_1.update(dt)
             self.hint_1.draw(self.camera.frame)
 
-        elif self.current_scene.name in ["normal"]:
+        elif self.current_scene.name == "normal":
             self.player.draw(self.camera)
             self.snake.draw(self.camera)
 
         self.camera.draw(self.display)
 
         stt.debugger.draw(self.display)
+
 
         pg.display.update()
 

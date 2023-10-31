@@ -51,7 +51,7 @@ class ObstacleList:
 possible_obstacles = [
     Obstacle(pg.image.load("images/obstacles/banana_peel.png").convert_alpha(), "1x1"),
     Obstacle(pg.image.load("images/obstacles/chair.png").convert_alpha(), "1x1"),
-    Obstacle(pg.image.load("images/obstacles/clock.png").convert_alpha(), "1x1"),
+    Obstacle(pg.image.load("images/obstacles/clock.png").convert_alpha(), "1x2"),
     Obstacle(pg.image.load("images/obstacles/conus.png").convert_alpha(), "1x1"),
     Obstacle(pg.image.load("images/obstacles/couch.png").convert_alpha(), "2x1"),
     Obstacle(pg.image.load("images/obstacles/GREEN_CUBE.png").convert_alpha(), "1x1"),

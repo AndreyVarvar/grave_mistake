@@ -6,7 +6,7 @@ class Camera:
     def __init__(self):
         self.frame = pg.Surface((stt.D_H, stt.D_H), pg.SRCALPHA)
 
-        self.rect = pg.FRect((stt.D_H//2, 0), (stt.D_H, stt.D_H))
+        self.rect = pg.FRect((0, 0), (stt.D_H, stt.D_H))
 
     def draw(self, surf):
         surf.blit(self.frame, ((stt.D_W-self.frame.get_width())//2, 0))
@@ -14,35 +14,25 @@ class Camera:
     def clear(self):
         self.frame.fill("black")
 
-    def follow(self, pos, bounds):
-        self.rect.x += pos[0] - self.rect.x
-        self.rect.y += pos[1] - self.rect.y
+    def follow(self, pos, bounds: pg.Rect):
+        self.rect.x += pos[0] - self.rect.centerx
+        self.rect.y += pos[1] - self.rect.centery
 
-        # check if camera can actually follow player so that it does not reveal blank space
-        cam_pos_boundaries_collision = {"up": False, "down": False, "left": False, "right": False}
+        if self.rect.top < bounds.top:
+            self.rect.top = bounds.top
+        elif self.rect.bottom > bounds.bottom:
+            self.rect.bottom = bounds.bottom
 
-        if bounds["x"][0] > self.rect.left:
-            self.rect.left = bounds["x"][0]
-            cam_pos_boundaries_collision["left"] = True
+        if self.rect.left < bounds.left:
+            self.rect.left = bounds.left
+        elif self.rect.right > bounds.right:
+            self.rect.right = bounds.right
 
-        if bounds["x"][1] < self.rect.right:
-            self.rect.right = bounds["x"][1]
-            cam_pos_boundaries_collision["right"] = True
-
-        if bounds["y"][0] > self.rect.top:
-            self.rect.top = bounds["y"][0]
-            cam_pos_boundaries_collision["bottom"] = True
-
-        if bounds["y"][1] < self.rect.bottom:
-            self.rect.top = bounds["y"][0]
-            cam_pos_boundaries_collision["top"] = True
-
-        stt.debugger.update(str(cam_pos_boundaries_collision), "bounds cam")
         stt.debugger.update(str(bounds), "bounds")
 
         # print(self.rect.center, pos, self.rect.centerx-pos[0], self.rect.centery-pos[1])
 
     def blit(self, surf, dest):
-        pos_in_frame = (dest[0] - self.rect.x + self.rect.width//2, dest[1] - self.rect.y)
+        pos_in_frame = (dest[0] - self.rect.centerx + self.rect.width//2, dest[1] - self.rect.centery + self.rect.height//2)
 
         self.frame.blit(surf, pos_in_frame)

@@ -1,8 +1,8 @@
 import settings as stt
 import pygame as pg
 import os
-from obstacles import ObstacleList, possible_obstacles, ObstacleEntity, Obstacle
-
+from room import Room
+from math import asin, pi
 
 class Scene:
     def __init__(self, name, type):
@@ -55,9 +55,9 @@ class AnimationScene(Scene):
 
 
 class GameplayState(Scene):
-    def __init__(self, name):
+    def __init__(self, name, room_n):
         super().__init__(name, "gameplay")
-        self.obstacles = ObstacleList()
+        self.room = Room(room_n)
 
     def draw(self, *args):
         pass
@@ -70,15 +70,30 @@ class GameplayState(Scene):
 
 
 class SurvivalState(GameplayState):
-    def __init__(self):
-        super().__init__("normal")
-
-        self.objects = ObstacleList()
+    def __init__(self, room_n):
+        super().__init__("normal", room_n)
+        self.heartbeat = pg.mixer.Sound("assets/SFX/heartbeat.ogg")
 
     def draw(self, *args):
         camera = args[0]
 
-        camera.blit(frame, (0, 0))
+        camera.blit(self.room.map, (0, 0))
 
     def update(self, *args):
         dt = args[0]
+
+    def sfx(self, snake, player):
+        x = snake.pos.y - player.rect.y
+
+        if x <= 400:
+            sound_volume = (4/pi)*asin(1-(x/400))
+            self.heartbeat.set_volume(sound_volume)
+
+            if not stt.sfx_channel.get_busy():
+                stt.sfx_channel.play(self.heartbeat)
+
+            stt.debugger.update("playing", "heartbeat")
+        else:
+            stt.sfx_channel.stop()
+            stt.debugger.update("not playing", "heartbeat")
+
